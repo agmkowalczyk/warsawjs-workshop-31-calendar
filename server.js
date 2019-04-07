@@ -202,3 +202,35 @@ app.get('/data-async/:id', async(req, res) => {
 
 
 
+
+// READ FILE
+// node style callbacks
+app.get('/file', (req, res) => {
+  fs.readFile('file.txt', 'utf-8', (err, data) => {
+    if (err) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    res.json({ data });
+  })
+})
+
+// READ FILE
+// promises
+app.get('/file2', (req, res) => {
+  fs2.readFile('file.txt', 'utf-8')
+    .then((data) => {
+    res.json({ data });
+  }).catch((err) => {
+    res.status(404).json({ error: 'Not found' });
+  })
+})
+
+// READ FILE
+// async / await
+app.get('/file3', async (req, res) => {
+  try {
+    res.json({ data: await fs2.readFile('file.txt', 'utf-8') });
+  } catch (err) {
+    res.status(404).json({ error: 'Not found async' });
+  }
+})
