@@ -100,3 +100,105 @@ app.patch('/data/:id', (req, res) => {
 
 
 
+
+// GET promises and async
+
+function getData(id) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(data[id]);
+    }, 2000);
+  });
+}
+
+function getData2(id) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({ data2: 'ok' });
+    }, 2000);
+  });
+}
+
+
+// GET promise
+app.get('/data-promise/:id', (req, res) => {
+  if (!data.hasOwnProperty(req.params.id)) {
+    return res.status(404).json({ error: 'Not found' });
+  } 
+  const promise = getData(req.params.id);
+  const promise2 = getData2(req.params.id);
+ 
+  promise.then((value) => {
+    promise2.then((value2) => {
+      res.json({ result: { res: value, res2: value2 } });
+    });
+  });
+});
+
+/* RESULT
+  {
+      "result": {
+          "res": {
+              "p": 1
+          },
+          "res2": {
+              "data2": "ok"
+          }
+      }
+  }
+*/
+
+
+
+// GET Promise.all
+app.get('/data-promise-all/:id', async(req, res) => {
+  if (!data.hasOwnProperty(req.params.id)) {
+    return res.status(404).json({ error: 'Not found' });
+  } 
+  const promise = getData(req.params.id);
+  const promise2 = getData2(req.params.id);
+
+  Promise.all([promise, promise2])
+  .then((array) => {
+    res.json(array);
+  });
+});
+
+/* RESULT
+  [
+      {
+          "p": 1
+      },
+      {
+          "data2": "ok"
+      }
+  ]
+*/
+
+
+
+// GET async/await
+app.get('/data-async/:id', async(req, res) => {
+  if (!data.hasOwnProperty(req.params.id)) {
+    return res.status(404).json({ error: 'Not found' });
+  } 
+  const promise = await getData(req.params.id);
+  const promise2 = await getData2(req.params.id);
+
+  res.json({ promise, promise2, message: 'ASYNC success' });
+});
+
+/* RESULT 
+  {
+    "promise": {
+        "p": 1
+    },
+    "promise2": {
+        "data2": "ok"
+    },
+    "message": "ASYNC success"
+  }
+*/
+
+
+
